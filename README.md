@@ -30,12 +30,19 @@ The API ships with several convenience commands (runnable via `npm`):
   * `npm run docs`: generate API documentation
   * `npm run coverage`: generate code coverage reports
 
+## install as a service
+The bash script `pelias-api` contains instructions to start the API as a linux service. It has to be cp to /etc/init.d/pelias-api before launching it like this : 
+
+  * `service pelias-api start`
+
 ## pelias-config
 The API recognizes the following properties under the top-level `api` key in your `pelias.json` config file:
 
   * `accessLog`: (*optional*) The name of the format to use for access logs; may be any one of the
   [predefined values](https://github.com/expressjs/morgan#predefined-formats) in the `morgan` package. Defaults to
   `"common"`; if set to `false`, or an otherwise falsy value, disables access-logging entirely.
+
+  * `textAnalyzer` : The name of the text analyzer used to parse the search query. This version of the API is overridden to use `"libpostal"`, replacing Addressit parser.
 
 ## Contributing
 
