@@ -35,6 +35,7 @@
   "dependencies": {
     "async": "^1.5.2",
     "check-types": "^7.0.0",
+    "body-parser": "^1.15.0",
     "cluster2": "git://github.com/missinglink/cluster2.git#node_zero_twelve",
     "elasticsearch": "^11.0.0",
     "elasticsearch-exceptions": "0.0.4",

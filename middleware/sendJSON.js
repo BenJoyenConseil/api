@@ -7,58 +7,55 @@ var check = require('check-types'),
 var exceptionRegexList = exceptions.map( function( exceptionName ){
   return new RegExp( '^' + exceptionName );
 });
+var iterate = require('../helper/iterate');
+var peliasLogger = require( 'pelias-logger' ).get( 'middleware/sendJSON' );
 
 function sendJSONResponse(req, res, next) {
 
+  peliasLogger.debug(JSON.stringify(res.body));
+
   // do nothing if no result data set
-  if (!res || !check.object(res.body) || !check.object(res.body.geocoding)) {
+  if (!res || !(check.object(res.body) || check.array(res.body))) {
     return next();
   }
 
   // default status
   var statusCode = 200; // 200 OK
 
-  // vary status code whenever an error was reported
-  var geocoding = res.body.geocoding;
 
-  if( check.array( geocoding.errors ) && geocoding.errors.length ){
+  if(req.singleton && check.array(res.body)) {
+    res.body = res.body[0];
+  }
 
-    // default status for errors is 400 Bad Request
-    statusCode = 400; // 400 Bad Request
+  iterate(res.body, function(body) {
+    // vary status code whenever an error was reported
+    if( check.array( body.geocoding.errors ) && body.geocoding.errors.length ){
 
-    // iterate over all reported errors
-    geocoding.errors.forEach( function( err ){
+      // default status for errors is 400 Bad Request
+      statusCode = 400; // 400 Bad Request
 
-      // custom status codes for instances of the Error() object.
-      if( err instanceof Error ){
-        /*
-          elasticsearch errors
-          see: https://github.com/elastic/elasticsearch-js/blob/master/src/lib/errors.js
-
-          408 Request Timeout
-          500 Internal Server Error
-          502 Bad Gateway
-        */
-        if( err instanceof es.errors.RequestTimeout ){ statusCode = Math.max( statusCode, 408 ); }
-        else if( err instanceof es.errors.NoConnections ){ statusCode = Math.max( statusCode, 502 ); }
-        else if( err instanceof es.errors.ConnectionFault ){ statusCode = Math.max( statusCode, 502 ); }
-        else { statusCode = Math.max( statusCode, 500 ); }
-
-      /*
-        some elasticsearch errors are only returned as strings (not instances of Error).
-        in this case we (unfortunately) need to match the exception at position 0 inside the string.
-      */
-      } else if( check.string( err ) ){
-        for( var i=0; i<exceptionRegexList.length; i++ ){
-          // check error string against a list of known elasticsearch exceptions
-          if( err.match( exceptionRegexList[i] ) ){
-            statusCode = Math.max( statusCode, 500 );
-            break; // break on first match
+      // iterate over all reported errors
+      body.geocoding.errors.forEach( function( err ){
+        // custom status codes for instances of the Error() object.
+        if( err instanceof Error ){
+          // we can extract the error type from the constructor name
+          switch( err.constructor.name ){
+            // elasticsearch errors
+            // see: https://github.com/elastic/elasticsearch-js/blob/master/src/lib/errors.js
+            case 'RequestTimeout': statusCode = 408; break; // 408 Request Timeout
+            case 'NoConnections': statusCode = 502; break; // 502 Bad Gateway
+            case 'ConnectionFault': statusCode = 502; break; // 502 Bad Gateway
+            case 'Serialization': statusCode = 500; break; // 500 Internal Server Error
+            case 'Generic': statusCode = 500; break; // 500 Internal Server Error
+            default: statusCode = 500; // 500 Internal Server Error
           }
         }
-      }
-    });
-  }
+      });
+
+      // No need to look for further errors. End the iteration.
+      return false;
+    }
+  });
 
   // respond
   return res.status(statusCode).json(res.body);

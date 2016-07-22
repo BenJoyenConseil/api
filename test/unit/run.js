@@ -14,6 +14,7 @@ var tests = [
   require('./controller/search'),
   require('./helper/geojsonify'),
   require('./helper/labelGenerator_examples'),
+  require('./helper/iterate'),
   require('./helper/labelGenerator_default'),
   require('./helper/labelGenerator_CAN'),
   require('./helper/labelGenerator_GBR'),
@@ -23,6 +24,7 @@ var tests = [
   require('./helper/type_mapping'),
   require('./helper/sizeCalculator'),
   require('./middleware/access_log'),
+  require('./middleware/bulkSizeLimit'),
   require('./middleware/confidenceScore'),
   require('./middleware/confidenceScoreReverse'),
   require('./middleware/distance'),
@@ -57,6 +59,7 @@ var tests = [
   require('./sanitiser/reverse'),
   require('./sanitiser/search'),
   require('./service/mget'),
+  require('./service/msearch'),
   require('./service/search'),
 ];
 
