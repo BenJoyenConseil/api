@@ -5,7 +5,7 @@ function middleware(req, res, next){
   res.header('Charset','utf8');
   res.header('Cache-Control','public');
   res.header('Server', 'Pelias/'+pkg.version);
-  res.header('X-Powered-By', 'mapzen');
+  res.header('X-Powered-By', 'Axa DIL');
   next();
 }
 
