@@ -1,0 +1,56 @@
+{
+  "esclient": {
+    "keepAlive": true,
+    "requestTimeout": "120000",
+    "hosts": [{
+      "protocol": "http",
+      "host": "10.235.249.71",
+      "port": 9200
+    },{
+       "env": "production",
+       "protocol": "http",
+       "host": "10.235.249.72",
+       "port": 9200
+    },{
+       "env": "production",
+       "protocol": "http",
+       "host": "10.235.249.73",
+       "port": 9200
+    }],
+    "log": [{
+      "type": "stdio",
+      "level": [ "error", "debug" ]
+    }]
+  },
+  "api": {
+    "accessLog": "common",
+    "host": "http://localhost",
+    "version": "1.0",
+    "textAnalyzer": "libpostal"
+  },
+  "dbclient": {
+    "statFrequency": 10000
+  },
+  "logger": {
+    "level": "info",
+    "timestamp": true,
+    "colorize": true
+  },
+  "imports": {
+    "openstreetmap": {
+      "datapath": "/data/pelias/osm",
+      "adminLookup": true,
+      "leveldbpath": "/tmp",
+      "import": [{
+        "filename": "spain.osm.pbf"
+      }]
+    },
+    "openaddresses": {
+      "datapath": "/data/pelias/openaddresses",
+      "files": []
+    },
+    "whosonfirst": {
+      "datapath": "/data/whosonfirst-data"
+    }
+  }
+}
